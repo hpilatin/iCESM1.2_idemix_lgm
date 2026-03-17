@@ -91,8 +91,8 @@ mpres = True
 pltres@PanelPlot  = True
 res@Footer    = False
 
-;plot = new(4,graphic)
-plots = new(3,graphic)
+plot = new(4,graphic)
+;plots = new(3,graphic)
 
 res@lbLabelBarOn        = False
 res@cnInfoLabelOn       = False
