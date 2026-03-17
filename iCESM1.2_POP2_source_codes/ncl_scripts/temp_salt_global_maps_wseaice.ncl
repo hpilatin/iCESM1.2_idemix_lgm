@@ -1,0 +1,945 @@
+
+
+
+;----------------------------------------------------------------------
+; addfiles_1.ncl
+;
+; Concepts illustrated:
+;   - Reading a variable off several NetCDF files using 'addfiles' and 'cat' mode
+;   - To view the plot xdg-open xy.png &
+;----------------------------------------------------------------------
+; The files read by this example are called pottmp.YYYY.nc, where
+; 'YYYY' represents a four-digit year like '1980'.
+;----------------------------------------------------------------------
+
+
+
+;load "/home/hbkheves/panel_two_sets.ncl"
+
+
+begin
+
+
+;   pop_pi_tamas = addfile ("/mnt/d/lgm_data2/montly_parameters.piControl.p875.001.pop.h.4150_4199_timmean.nc", "r")
+;   pop_lgm_tamas = addfile ("/mnt/d/lgm_data/buo_test_cmake.pop.h.1550_1599.nc", "r")
+;   pop_pi = addfile ("/mnt/d/lgm_data/buo_pi_idemix_isotope_continued_4900_4999.nc", "r")
+;   pop_lgm = addfile ("/mnt/d/lgm_data/buo_lgm_idemix_isotope_continued_5800_5899.nc", "r")
+
+
+;  pop_pi_tamas = addfile ("/mnt/d/lgm_data2/montly_parameters.piControl.p875.001.pop.h.4150_4199_timmean.nc", "r")
+;  pop_lgm_tamas = addfile ("/mnt/d/lgm_data2/montly_parameters.LGM21ka_frUsp.p875.001.pop.h.5450_5499_timmean.nc", "r")
+  
+;    pop_pi = addfile ("/mnt/d/lgm_data/select_pi_idemix_isotope_continued_4949_4999_timmean.nc", "r")
+;    pop_lgm = addfile ("/mnt/d/lgm_data/select_lgm_idemix_isotope_continued_5849_5899_timmean.nc", "r")
+
+   
+;      pop_pi_tamas = addfile ("/mnt/d/lgm_data2/montly_parameters.piControl.p875.001.pop.h.4150_4199_timmean.nc", "r")
+;;      pop_lgm_tamas = addfile ("/mnt/d/lgm_data2/buo_LGM21ka_frUsp.p875.001.pop.h.5450_5499_timmean.nc", "r")
+;;       pop_lgm_tamas = addfile ("/mnt/d/lgm_data2/select_test_cmake_1670_1719_timmean.nc", "r")
+;      pop_lgm_tamas = addfile ("/mnt/d/lgm_data2/sel_buo_test_cmake_1750_1799_timmean.nc", "r")
+  
+
+;!      pop_pi = addfile ("/mnt/d/lgm_data/select_pi_idemix_isotope_continued_4949_4999_timmean.nc", "r")
+;     pop_pi = addfile ("/mnt/d/lgm_data/alldata_PI_ciso_j5_idemix_mvio_3920_3969_timmean.nc", "r")
+;     pop_lgm = addfile ("/mnt/d/lgm_data/select_lgm_idemix_isotope_continued_5849_5899_timmean.nc", "r")      
+
+
+  pop_pi_tamas = addfile ("/mnt/d/lgm_data2/buo_piControl.p875.001.pop.h.4190_4199_timmean.nc", "r")
+  pop_lgm_tamas = addfile ("/mnt/d/lgm_data2/buo_test_cmake_1860_1869_timmean.nc", "r")
+  pop_pi = addfile ("/mnt/d/lgm_data/select_pi_idemix_4900_4694_4703_timmean.nc", "r")
+  pop_lgm = addfile ("/mnt/d/lgm_data/sel_buo_idemix_lgm_idemix_isotope_continued_5900_5909_timmean.nc", "r")
+
+
+ ;  pop_pi_tamas = addfile ("/mnt/d/lgm_data2/everything_except_moc_piControl.p875.001.pop.h.4150_4199_timmean.nc", "r")
+
+ ; pop_lgm_tamas = addfile ("/mnt/d/lgm_data2/everything_except_moc_test_cmake.pop.h.1830_1879_timmean.nc", "r")
+
+ ; pop_pi = addfile ("/mnt/d/lgm_data/select_pi_idemix_4900_4654_4703_timmean.nc", "r")
+
+ ; pop_lgm = addfile ("/mnt/d/lgm_data/select_lgm_idemix_isotope_continued_5849_5899_timmean.nc", "r")
+
+
+
+
+
+
+
+   pop_pi_tamas_ice = addfile ("/mnt/d/lgm_data2/hmarch_ice_pi_noidemix_4200_4249_timmean.nc", "r")
+   pop_lgm_tamas_ice = addfile ("/mnt/d/lgm_data2/hmarch_ice_lgm_testcmake_1830_1879_timmean.nc", "r")
+
+
+    pop_pi_ice = addfile ("/mnt/d/lgm_data/ice_march_pi_idemix_4900_4654_4703_timmean.nc", "r")
+    ;pop_pi_ice = addfile ("/mnt/d/lgm_data/ice_july_pi_idemix_4900_4654_4703_timmean.nc", "r")
+
+
+   pop_lgm_ice = addfile ("/mnt/d/lgm_data/hhmarch_ice_lgm_idemix_isotope_continued_5940_5989_timmean.nc", "r")
+
+  ;pop_pi_tamas_ice = addfile ("/mnt/d/lgm_data2/hjuly_ice_pi_noidemix_4200_4249_timmean.nc", "r")
+  ;pop_lgm_tamas_ice = addfile ("/mnt/d/lgm_data2/hjuly_ice_test_cmake_1830_1879_timmean.nc", "r")
+
+  ; pop_lgm_ice = addfile ("/mnt/d/lgm_data/july_ice_lgm_idemix_isotope_continued_5940_5989_timmean.nc", "r")
+
+
+
+ ;tarea_lgm = addfile ("/mnt/d/lgm_data/lgm_tarea.nc", "r")
+
+ ;tarea_pi = addfile ("/mnt/d/lgm_data/pi_tarea.nc", "r")
+
+ 
+tarea_lgm = addfile ("/mnt/d/lgm_data/pi_tarea_m2.nc", "r")
+
+ tarea_pi = addfile ("/mnt/d/lgm_data/lgm_tarea_m2.nc", "r")
+
+wks_type = "pdf"
+
+   wks  = gsn_open_wks(wks_type,"temp_salt_global_maps_atsurface_testcmake_new_10yrs_wseaice_diff_winter_lastnew")
+
+
+   cmap = read_colormap_file("temp_19lev")
+   ncmap = dimsizes(cmap(:,0))
+   
+  cmap2 = read_colormap_file("MPL_RdYlBu")
+
+res                      = True                 ; plot mods desired
+  res@gsnDraw              = False                ; don't draw yet
+  res@gsnFrame             = False                ; don't advance frame yet
+  res@cnFillOn             = True                 ; turn on color fill
+  res@cnFillPalette        = "BlWhRe"         ; set color map
+;  res@cnFillPalette        = read_colormap_file("MPL_rai")
+  res@cnLinesOn            = False                ; turn off contour lines
+  res@cnLineLabelsOn       = False                ; turn off contour line labels
+
+
+
+;res@gsnPaperHeight = 14
+;res@gsnPaperWidth = 9.5
+
+;res@wkPaperHeightF = 12
+;res@wkPaperWidthF = 20
+
+   
+
+
+res@vpWidthF           = 0.15
+res@vpHeightF          = 0.20
+res@tmXBLabelsOn  = True
+res@tmXBLabelFontHeightF = 0.005
+res@tmYLLabelFontHeightF = 0.005
+;res@cnFillPalette        = cmap
+res@mpLandFillColor = "grey56"
+res@cnMissingValFillColor = "grey56"
+res@lbLabelBarOn        = False
+res@cnInfoLabelOn       = False
+res@description = "  "
+
+pltres = True
+mpres = True
+pltres@PanelPlot  = True
+res@Footer    = False
+plot = new(2,graphic)
+plots = new(2,graphic)
+res@tmYLLabelsOn  = True
+res@tmXBLabelsOn  = True
+res@tmXBTickSpacingF     = 30.0
+res@vpWidthF           = 0.3
+res@vpHeightF          = 0.15
+res@tmXBLabelFontHeightF = 0.007
+res@tmYLLabelFontHeightF = 0.007
+
+;res@gsnYAxisIrregular2Linear = False
+;res@trYReverse           = False
+res@lbLabelFontHeightF= 0.008
+;res@pmLabelBarParallelPosF = -0.01
+res@lbTitleString = "Buoyancy Flux [10^-6 kg/m2/s]"
+res@lbTitleFontHeightF= 0.009
+res@lbTitleOffsetF = 0.01
+
+res@tmXBTickSpacingF = 60.0
+res@tmYLTickSpacingF = 30.0
+res@cnMissingValFillPattern = "SolidFill"
+res@cnMissingValFillColor = "grey56"
+
+
+;    res@cnLevelSelectionMode      = "ManualLevels"  ; manually specify contour levels
+;    res@cnMinLevelValF            = -3             ; min level
+;    res@cnMaxLevelValF            =  3             ; max level
+;    res@cnLevelSpacingF           =  0.2            ; contour interval
+
+ 
+;    res@cnLevelSelectionMode      = "ManualLevels"  ; manually specify contour levels
+;    res@cnMinLevelValF            = -1.5             ; min level 
+;   res@cnMaxLevelValF            =  1.5             ; max level
+;   res@cnLevelSpacingF           =  0.25            ; contour interval 
+
+
+
+    res@cnLevelSelectionMode      = "ManualLevels"  ; manually specify contour levels
+    res@cnMinLevelValF            = -2             ; min level
+   res@cnMaxLevelValF            =  2             ; max level
+   res@cnLevelSpacingF           =  0.2            ; contour interval
+
+
+res9 = res 
+;cmap2 = read_colormap_file("MPL_RdYlBu")
+delete(res9@cnLevelSelectionMode)
+delete(res9@cnMinLevelValF)
+delete(res9@cnMaxLevelValF)
+delete(res9@cnLevelSpacingF)
+delete(res9@cnFillPalette)
+res9@cnFillPalette        = cmap2(::-1,:)
+;    res9@cnLevelSelectionMode      = "ManualLevels"  ; manually specify contour levels
+;    res9@cnMinLevelValF            = -0.6             ; min level
+;   res9@cnMaxLevelValF            =  0.6             ; max level
+;   res9@cnLevelSpacingF           =  0.04            ; contour interval
+
+
+    res9@cnLevelSelectionMode      = "ManualLevels"  ; manually specify contour levels
+    res9@cnMinLevelValF            = -1.2             ; min level
+   res9@cnMaxLevelValF            =  1.2             ; max level
+   res9@cnLevelSpacingF           =  0.2            ; contour interval
+
+
+
+res9_v2 = res9
+
+res1                      = True                 ; plot mods desired
+res1@mpLandFillColor = "grey56"
+res1@cnMissingValFillColor = "grey56"
+ 
+  res1@gsnDraw              = False                ; don't draw yet
+  res1@gsnFrame             = False                ; don't advance frame yet
+  res1@cnFillOn             = True                 ; turn on color fill
+   cmap2 = read_colormap_file("MPL_RdYlBu")
+  res1@cnFillPalette        = cmap2(::-1,:)         ; set color map
+;  res1@cnFillPalette        = read_colormap_file("MPL_RdYlBu")
+  res1@cnLinesOn            = False                ; turn off contour lines
+  res1@cnLineLabelsOn       = False                ; turn off contour line labels
+
+res1@vpWidthF           = 0.35
+res1@vpHeightF          = 0.20
+res1@tmXBLabelsOn  = True
+res1@tmXBLabelFontHeightF = 0.003
+res1@tmYLLabelFontHeightF = 0.003
+
+;res1@mpLandFillColor = "grey"
+
+res1@lbLabelBarOn        = False
+res1@cnInfoLabelOn       = False
+res1@description = "  "
+; res1@gsnLeftString =  "Vertical Diffusivity"
+; res1@gsnRightString           = "(m^2/s)"
+ res1@gsnCenterString = "  "
+res1@tiMainString  = " "             ; add title
+  ;res1@gsnMaximize         = True                 ; make as large as possible
+;res1@tmXBLabelFontHeightF = 0.0025
+;res1@tmYLLabelFontHeightF = 0.0025
+;res1@lbLabelBarOn        = False
+
+res1@cnMissingValFillPattern = "SolidFill"
+
+
+;res1@cnMissingValFillColor = "grey52"
+;res1@cnFillPalette        = read_colormap_file("MPL_rainbow")
+res1@vpWidthF           = 0.13
+res1@vpHeightF          = 0.18
+
+res1@tmYLLabelsOn  = True
+res1@tmXBLabelsOn  = True
+res1@tmXBTickSpacingF     = 20.0
+;res1@cnLevelSelectionMode = "ExplicitLevels"
+;res1@cnLevels    = (/ -0.75, -0.5, -0.25, -0.05, -0.0075, -0.0005, -0.0025, -0.0005, 0 , 0.0005, 0.0025, 0.005, 0.0075, 0.05, 0.25, 0.50, 0.75/)
+;res1@cnLevels    = (/ 0 , 0.000005, 0.000025, 0.00005, 0.000075, 0.0005, 0.0025, 0.005, 0.0075, 0.05, 0.25, 0.50, 0.75, 1/)
+;res1@cnLevels    = ispan(-12,12,2)
+
+
+res1@vpWidthF           = 0.35
+res1@vpHeightF          = 0.20
+res1@tmXBLabelFontHeightF = 0.007
+res1@tmYLLabelFontHeightF = 0.007
+
+
+
+;res1@tmXBLabelsOn  = True
+res1@tmXBTickSpacingF     = 30.0
+;res1@cnLevelSelectionMode = "ExplicitLevels"
+;res1@cnLevels    = (/ -0.75, -0.5, -0.25, -0.05, -0.0075, -0.0005, -0.0025, -0.0005, 0 , 0.0005, 0.0025, 0.005, 0.0075, 0.05, 0.25, 0.50, 0.75/)
+;res1@cnLevels    = (/ 0 , 0.000005, 0.000025, 0.00005, 0.000075, 0.0005, 0.0025, 0.005, 0.0075, 0.05, 0.25, 0.50, 0.75, 1/)
+;res1@cnLevels    = ispan(-12,12,2)
+
+
+res1@vpWidthF           = 0.3
+res1@vpHeightF          = 0.15
+;res1@tmXBLabelFontHeightF = 0.014
+;res1@tmYLLabelFontHeightF = 0.014
+
+;res1@gsnYAxisIrregular2Linear = False
+;res1@trYReverse           = False
+;res1@cnLineLabelFormat    = "0@;*.4f"
+;res1@cnLineLabelFormat    = "*+^sg"
+;res1@cnLineLabelFormat    =  "%6.1f"
+;res1@cnConstFLabelFormat = "0@;*.8f"
+;res1@cnConstFLabelFormat =  "%2f"
+res1@lbLabelFontHeightF= 0.008
+
+;res1@pmLabelBarParallelPosF = -0.01
+res1@lbTitleString = "Salt [g/kg]"
+res1@lbTitleFontHeightF= 0.009
+res1@lbTitleOffsetF = 0.01
+
+
+; res1@cnLevelSelectionMode      = "ManualLevels"  ; manually specify contour levels
+;    res1@cnMinLevelValF            = -1.             ; min level
+;    res1@cnMaxLevelValF            =  1.             ; max level
+;    res1@cnLevelSpacingF           =  0.1            ; contour interval
+
+
+;original:
+
+;    res1@cnLevelSelectionMode      = "ManualLevels"  ; manually specify contour levels
+;    res1@cnMinLevelValF            = -2.             ; min level
+;    res1@cnMaxLevelValF            =  2.             ; max level
+;    res1@cnLevelSpacingF           =  0.2            ; contour interval
+
+  ;  res1@cnLevelSelectionMode      = "ManualLevels"  ; manually specify contour levels
+  ;  res1@cnMinLevelValF            = -3.             ; min level
+  ;  res1@cnMaxLevelValF            =  3.             ; max level
+  ;  res1@cnLevelSpacingF           =  0.25            ; contour interval
+
+
+res1@cnLevelSelectionMode = "ExplicitLevels"   ; set explicit contour levels
+;res1@cnLevels    = (/-0.3,-0.26,-0.22,-0.18,-0.14,-0.1,-0.06,-0.02,0,0.02,0.06,0.1,0.14,0.18,0.22,0.26,0.3/)   ; set levels ; Difference
+res1@cnLevels    = (/-0.5,-0.46,-0.42,-0.38,-0.34,-0.3,-0.26,-0.22,-0.18,-0.14,-0.1,-0.06,-0.02,0,0.02,0.06,0.1,0.14,0.18,0.22,0.26,0.3,0.34,0.38,0.42,0.46,0.5/)
+
+
+res1@tmXBTickSpacingF = 60.0
+res1@tmYLTickSpacingF = 30.0
+
+
+res1@cnMissingValFillPattern = "SolidFill"
+;res1@cnMissingValFillColor = "lightgrey"
+
+
+res2 = True
+res2@tmXBTickSpacingF     = 30.0
+res2@vpWidthF           = 0.3
+res2@vpHeightF          = 0.15
+res2@tmXBLabelFontHeightF = 0.007
+res2@tmYLLabelFontHeightF = 0.007
+
+res2@tmXBLabelsOn  = True
+;res2@tmXBLabelFontHeightF = 0.005
+;res2@tmYLLabelFontHeightF = 0.005
+;res2@cnFillPalette        = cmap
+res2@mpLandFillColor = "grey56"
+res2@cnMissingValFillColor = "grey56"
+res2@lbLabelBarOn        = False
+res2@cnInfoLabelOn       = False                                                                                                                                                            
+res2@cnLinesOn            = False                ; turn off contour lines
+res2@cnLineLabelsOn       = False                ; turn off contour line labels
+res2@tmXBLabelsOn  = True
+res2@tmYLabelsOn  = False
+res2@lbLabelFontHeightF= 0.008
+res2@mpLandFillColor = "grey56"
+res2@cnMissingValFillColor = "grey56"
+;res2@pmLabelBarParallelPosF = -0.01
+;res2@lbTitleString = "Wind Stress [m/s]"
+res2@lbTitleString = "Buoyancy Flux [10^-6 kg/m2/s]"
+res2@lbTitleFontHeightF= 0.009
+res2@lbTitleOffsetF = 0.01
+res2@cnFillOn             = True
+res2@cnFillPalette        = cmap(::-1,:)
+res2@tmXBTickSpacingF = 60.0
+res2@tmYLTickSpacingF = 30.0
+
+
+ res2@cnLevelSelectionMode      = "ManualLevels"  ; manually specify contour levels
+ res2@cnMinLevelValF            = -3             ; min level
+ res2@cnMaxLevelValF            =  3             ; max level
+ res2@cnLevelSpacingF           =  0.2            ; contour interval
+
+;res2@tmYLLabelsOn  = False
+res2@tmXBLabelsOn  = True
+;res2@tmXBLabelFontHeightF = 0.0010
+;res2@tmYLLabelFontHeightF = 0.0010
+res2@tmYLLabelsOn  = False
+res2@tmXBLabelsOn  = True
+
+
+res5 = res
+res5@tmYLLabelsOn  = False
+
+res6 = res1
+res6@tmYLLabelsOn  = False
+
+
+res4 = True
+res4@tmXBTickSpacingF     = 30.0
+res4@vpWidthF           = 0.3
+res4@vpHeightF          = 0.15
+res4@tmXBLabelFontHeightF = 0.007
+res4@tmYLLabelFontHeightF = 0.007
+
+res4@tmXBLabelsOn  = True
+;res4@tmXBLabelFontHeightF = 0.005
+;res4@tmYLLabelFontHeightF = 0.005
+;res4@cnFillPalette        = cmap
+res4@mpLandFillColor = "grey56"
+res4@cnMissingValFillColor = "grey56"
+res4@lbLabelBarOn        = False
+res4@cnInfoLabelOn       = False                                                                                                                                                            
+res4@cnLinesOn            = False                ; turn off contour lines
+res4@cnLineLabelsOn       = False                ; turn off contour line labels
+res4@tmXBLabelsOn  = True
+res4@tmYLabelsOn  = False
+;res4@pmLabelBarParallelPosF = -0.01
+res4@lbTitleString = "Salt [g/kg]"
+res4@lbTitleFontHeightF= 0.009
+res4@lbTitleOffsetF = 0.01
+;res4@cnLevelSelectionMode      = "ManualLevels"  ; manually specify contour levels
+;    res4@cnMinLevelValF            = -1.             ; min level
+;    res4@cnMaxLevelValF            =  1.             ; max level
+;    res4@cnLevelSpacingF           =  0.1            ; contour interval
+res4@mpLandFillColor = "grey56"
+res4@cnMissingValFillColor = "grey56"
+res4@cnFillOn             = True
+res4@cnFillPalette        = cmap2(::-1,:)
+
+
+;original:
+
+;    res4@cnLevelSelectionMode      = "ManualLevels"  ; manually specify contour levels 
+;    res4@cnMinLevelValF            = -2.             ; min level
+;    res4@cnMaxLevelValF            =  2.             ; max level
+;    res4@cnLevelSpacingF           =  0.2            ; contour interval
+
+
+;    res4@cnLevelSelectionMode      = "ManualLevels"  ; manually specify contour levels
+;    res4@cnMinLevelValF            = -3.             ; min level
+;    res4@cnMaxLevelValF            =  3.             ; max level
+;    res4@cnLevelSpacingF           =  0.25            ; contour interval
+
+;res4@cnFillPalette        = cmap(::-1,:)
+
+res4@tmXBTickSpacingF = 60.0
+res4@tmYLTickSpacingF = 30.0
+
+res4@mpLandFillColor = "grey56"
+res4@cnMissingValFillColor = "grey56"
+
+;res4@tmYLLabelsOn  = False
+;res4@tmXBLabelFontHeightF = 0.0010
+;res4@tmYLLabelFontHeightF = 0.0010
+;res4@tmYLLabelsOn  = False
+res4@tmXBLabelsOn  = True
+
+
+;res@gsnPaperOrientation  = "landscape"
+;res1@gsnPaperOrientation  = "landscape"
+res4@tmXBLabelsOn  = True
+res4@tmYLLabelsOn  = False
+
+
+
+res4@cnLevelSelectionMode = "ExplicitLevels"   ; set explicit contour levels
+res4@cnLevels    = (/-0.3,-0.26,-0.22,-0.18,-0.14,-0.1,-0.06,-0.02,0,0.02,0.06,0.1,0.14,0.18,0.22,0.26,0.3/)   ; set levels ; Difference
+
+
+  lon1   = pop_pi->TLONG                   ; read in original lat/lon data
+  lat1   = pop_pi->TLAT
+
+
+; ================================================;
+; when a coordinate array contains one more element than the corresponding
+; dimension in the data array, the cell boundary is automatically turned on,
+; which causes discrete rasterization to use the coordinate values as
+; divisions between data cells, rather than to treat each coordinate value
+; as a cell center.
+; ================================================;
+  dims      = dimsizes(lon1)         ; get dimension sizes
+  dims(1)   = dims(1) + 1               ; increase longitude by 1
+  nlat      = dims(0)
+  nlon      = dims(1)
+
+  lon      = new(dims,typeof(lon1)) ; create new arrays
+  lat      = new(dims,typeof(lat1))
+
+  lat(:,1:nlon-1)  = lat1        ; fill in arrays
+  lon(:,1:nlon-1)  = lon1
+  lon(:,0)         = lon1(:,nlon-2)
+  lat(:,0)         = lat1(:,nlon-2)
+
+
+
+;; Take the mean only for the Southern Ocean;;;
+;;;########## Data (PI-without IDEMIX) ############;;;
+
+;pi_stress_tamas         = cam_pi_tamas->TAUX(:,:,:)  ; Zonal surface wind stress (N/m2)
+;pi_shf_tamas        = pop_pi_tamas->SHF(:,0:145,:)  ; Total surface heat flux (W/m2)
+;pi_sfwf_tamas         = pop_pi_tamas->SFWF(:,0:145,:)  ; Freshwater Flux (kg/m2/s)
+;pi_salt_tamas         = pop_pi_tamas->SALT(:,0,0:145,:)
+;pi_prec_tamas         = pop_pi_tamas->PREC_F(:,0:145,:)
+;pi_evap_tamas         = pop_pi_tamas->EVAP_F(:,0:145,:)
+
+;pi_pd_tamas         = pop_pi_tamas->PD(:,0,0:145,:) ; surface density (g/cm3)
+
+pi_salt_tamas         = pop_pi_tamas->SALT(0,0,1:nlat-1,:) ; 36 for 745m
+pi_pd_tamas         = pop_pi_tamas->PD(:,0,1:nlat-1,:) ; surface density (g/cm3)
+
+pi_salt2_tamas      = dim_avg_n(pi_salt_tamas,0)
+
+
+pi_temp_tamas         = pop_pi_tamas->TEMP(0,0,1:nlat-1,:)
+pi_temp2_tamas      = dim_avg_n(pi_temp_tamas,0)
+
+
+ice_pi_tamas          = pop_pi_tamas_ice->aice(0,:,:)
+ice_lgm_tamas          = pop_lgm_tamas_ice->aice(0,:,:)
+
+
+ice_pi          = pop_pi_ice->aice(0,:,:)
+ice_lgm          = pop_lgm_ice->aice(0,:,:)
+
+
+  latt  = pop_pi_ice->TLAT
+  lont  = pop_pi_ice->TLON
+
+
+;;;########## Means ############;;;
+;pi_stress_mean_tamas    = dim_avg_n(pi_stress_tamas,0)
+
+pi_salt_mean_tamas    = dim_avg_n(pi_salt_tamas,0)
+;pi_pd_mean_tamas    = dim_avg_n(pi_pd_tamas,0)*1000 ; conversion to kg/m3
+
+;pi_stress_mean2_tamas    = dim_avg_n(pi_stress_mean_tamas,1)
+;pi_salt_mean2_tamas    = dim_avg_n(pi_salt_mean_tamas,1)
+;pi_pd_mean2_tamas    = dim_avg_n(pi_pd_mean_tamas,1)
+
+;;;########## Data (LGM-without IDEMIX) ############;;;
+
+;lgm_stress_tamas         = cam_lgm_tamas->TAUX(:,:,:)  ; Zonal surface wind stress (N/m2)
+;lgm_shf_tamas         = pop_lgm_tamas->SHF(:,0:145,:)  ; Total surface heat flux (W/m2)
+;lgm_sfwf_tamas         = pop_lgm_tamas->SFWF(:,0:145,:)  ; Freshwater Flux (kg/m2/s)
+;lgm_salt_tamas         = pop_lgm_tamas->SALT(:,0,0:145,:)
+;lgm_prec_tamas         = pop_lgm_tamas->PREC_F(:,0:145,:)
+;lgm_evap_tamas         = pop_lgm_tamas->EVAP_F(:,0:145,:)
+
+;lgm_pd_tamas         = pop_lgm_tamas->PD(:,0,0:145,:) ; surface density (g/cm3)
+
+
+lgm_salt_tamas         = pop_lgm_tamas->SALT(0,0,1:nlat-1,:)
+;lgm_pd_tamas         = pop_lgm_tamas->PD(:,0,1:nlat-1,:) ; surface density (g/cm3)
+
+lgm_salt2_tamas      = dim_avg_n(lgm_salt_tamas,0)
+
+
+lgm_temp_tamas         = pop_lgm_tamas->TEMP(0,0,1:nlat-1,:)
+lgm_temp2_tamas      = dim_avg_n(lgm_temp_tamas,0)
+
+
+
+print(max(lgm_salt2_tamas))
+print(min(lgm_salt2_tamas))
+
+;;;########## Means ############;;;
+;lgm_stress_mean_tamas    = dim_avg_n(lgm_stress_tamas,0)
+
+lgm_salt_mean_tamas    = dim_avg_n(lgm_salt_tamas,0)
+;lgm_pd_mean_tamas    = dim_avg_n(lgm_pd_tamas,0)*1000 ; conversion to kg/m3
+
+;lgm_stress_mean2_tamas    = dim_avg_n(lgm_stress_mean_tamas,1)
+;lgm_salt_mean2_tamas    = dim_avg_n(lgm_salt_mean_tamas,1)
+;lgm_pd_mean2_tamas    = dim_avg_n(lgm_pd_mean_tamas,1)
+
+
+;;;########## Data (PI-with IDEMIX) ############;;;
+
+;pi_stress         = cam_pi->TAUX(:,:,:)  ; Zonal surface wind stress (N/m2)
+;pi_shf         = pop_pi[:]->SHF(:,0:145,:)  ; Total surface heat flux (W/m2)
+;pi_sfwf         = pop_pi[:]->SFWF(:,0:145,:)  ; Freshwater Flux (kg/m2/s)
+;pi_salt         = pop_pi[:]->SALT(:,0,0:145,:)
+;pi_prec         = pop_pi[:]->PREC_F(:,0:145,:)
+;pi_evap         = pop_pi[:]->EVAP_F(:,0:145,:)
+;pi_pd         = pop_pi[:]->PD(:,0,0:145,:) ; surface density (g/cm3)
+
+pi_salt         = pop_pi->SALT(0,0,1:nlat-1,:)
+
+;pi_pd         = pop_pi->PD(:,0,1:nlat-1,:) ; surface density (g/cm3)
+
+pi_salt2      = dim_avg_n(pi_salt,0)
+pi_temp         = pop_pi->TEMP(0,0,1:nlat-1,:)
+pi_temp2      = dim_avg_n(pi_temp,0)
+
+
+;;;########## Means ############;;;
+;pi_stress_mean    = dim_avg_n(pi_stress,0)
+pi_salt_mean    = dim_avg_n(pi_salt,0)
+;pi_pd_mean    = dim_avg_n(pi_pd,0)*1000 ; conversion to kg/m3
+
+;pi_stress_mean2    = dim_avg_n(pi_stress_mean,1)
+;pi_salt_mean2    = dim_avg_n(pi_salt_mean,1)
+;pi_pd_mean2    = dim_avg_n(pi_pd_mean,1)
+
+;;;########## Data (LGM-with IDEMIX) ############;;;
+
+;lgm_stress         = cam_lgm->TAUX(:,:,:)  ; Zonal surface wind stress (N/m2)
+;lgm_shf         = pop_lgm[:]->SHF(:,0:145,:)  ; Total surface heat flux (W/m2)
+;lgm_sfwf         = pop_lgm[:]->SFWF(:,0:145,:)  ; Freshwater Flux (kg/m2/s)
+;lgm_salt         = pop_lgm[:]->SALT(:,0,0:145,:)
+;lgm_prec         = pop_lgm[:]->PREC_F(:,0:145,:)
+;lgm_evap         = pop_lgm[:]->EVAP_F(:,0:145,:)
+
+;lgm_pd         = pop_lgm[:]->PD(:,0,0:145,:) ; surface density (g/cm3)
+
+lgm_salt         = pop_lgm->SALT(0,0,1:nlat-1,:) ; surface density (g/cm3)
+;lgm_pd         = pop_lgm->PD(:,0,1:nlat-1,:) ; surface density (g/cm3)
+
+lgm_salt2      = dim_avg_n(lgm_salt,0)
+
+
+lgm_temp         = pop_lgm->TEMP(0,0,1:nlat-1,:)
+lgm_temp2      = dim_avg_n(lgm_temp,0)
+
+print(max(lgm_salt2))
+print(min(lgm_salt2))
+
+
+;;;########## Means ############;;;
+;lgm_stress_mean    = dim_avg_n(lgm_stress,0)
+
+lgm_salt_mean    = dim_avg_n(lgm_salt,0)
+;lgm_pd_mean    = dim_avg_n(lgm_pd,0)*1000 ; conversion to kg/m3
+
+;lgm_stress_mean2    = dim_avg_n(lgm_stress_mean,1)
+;lgm_salt_mean2    = dim_avg_n(lgm_salt_mean,1)
+;lgm_pd_mean2    = dim_avg_n(lgm_pd_mean,1)
+
+;printVarSummary(lgm_stress)
+
+;;;;############################ Assumptions########################
+
+;;; beta= 0.801, alfa= 781*10^-7 (1/K) (these coefficients are taken from Atmosphere Ocean Dynamics (Adrian E. Gill) Table A3.1
+
+;;; Cp= 4000 J/kg*K, sea water density (swd)= 1022.4 kg/m^3 , ref density water = 1000 kg/m3
+
+;;;################################################################
+
+pd_ref_water = 1000 ; kg/m3
+
+
+sub_temp1 = (pi_temp) - (pi_temp_tamas)
+sub_temp2 = (lgm_temp) - (lgm_temp_tamas)
+
+
+sub_salt1 = (pi_salt) - (pi_salt_tamas)
+sub_salt2 = (lgm_salt) - (lgm_salt_tamas)
+
+printVarSummary(sub_salt2)
+print(max(sub_salt2))
+print(min(sub_salt2))
+
+
+sub_temp1@lat2d = lat
+sub_temp1@lon2d = lon
+
+sub_temp2@lat2d = lat
+sub_temp2@lon2d = lon
+
+
+sub_salt1@lat2d = lat
+sub_salt1@lon2d = lon
+
+
+sub_salt2@lat2d = lat
+sub_salt2@lon2d = lon
+
+
+
+;res@gsnPaperOrientation = "landspace"
+;res1@gsnPaperOrientation = "landspace"
+;res2@gsnPaperOrientation = "landspace"
+;res4@gsnPaperOrientation = "landspace"
+
+;res@wkPaperHeightF = 12
+;res@wkPaperWidthF = 20
+
+;res1@wkPaperHeightF = 12
+;res1@wkPaperWidthF = 20
+
+;res2@wkPaperHeightF = 12
+;res2@wkPaperWidthF = 20
+
+;res4@wkPaperHeightF = 12
+;res4@wkPaperWidthF = 20
+
+
+res@pmLabelBarOrthogonalPosF = 0.2
+res1@pmLabelBarOrthogonalPosF = 0.2
+res2@pmLabelBarOrthogonalPosF = 0.2
+res4@pmLabelBarOrthogonalPosF = 0.2
+
+
+plot(0) = gsn_csm_contour_map(wks,sub_temp1,res)
+plot(1) = gsn_csm_contour_map(wks,sub_temp2,res5)
+plots(0) = gsn_csm_contour_map(wks,sub_salt1,res9)
+plots(1) = gsn_csm_contour_map(wks,sub_salt2,res9_v2)
+
+
+
+  overlay_res                          = True
+  overlay_res@cnInfoLabelOn       = False
+  overlay_res@description = "  "
+  overlay_res@gsnDraw              = False                ; don't draw yet
+  overlay_res@gsnFrame             = False                ; don't advance frame yet
+  overlay_res@cnLineDrawOrder         = "PostDraw"
+  overlay_res@cnLinesOn               = True
+  overlay_res@cnLineColor             = "orange"
+  overlay_res@cnLineThicknessF        = 2.5
+  overlay_res@cnLevelSelectionMode    = "ExplicitLevels"
+  overlay_res@cnLevels                = (/15/)      ; 15% edge
+  ;overlay_res@cnLevels                = (/1/)
+  overlay_res@sfXArray                = lon
+  overlay_res@sfYArray                = lat
+  ;;overlay_res@cnLineLabelPlacementMode = "ConstantSpacing"
+  overlay_res@tiMainString  = " "             ; add title
+
+
+ overlay_res2 =  overlay_res
+ overlay_res2@cnLineColor             = "green"
+
+;  aice_edge1 = gsn_contour(wks, ice_pi_tamas, overlay_res)
+;  aice_edge2 = gsn_contour(wks, ice_lgm_tamas, overlay_res)
+;  aice_edge3 = gsn_contour(wks, ice_pi, overlay_res2)
+;  aice_edge4 = gsn_contour(wks, ice_lgm, overlay_res2)
+
+;  overlay(plots(0), aice_edge1)
+;  overlay(plots(0), aice_edge3)
+
+;  overlay(plots(1), aice_edge2)
+;  overlay(plots(1), aice_edge4)
+
+
+    ice_pi_tamas15 = where(ice_pi_tamas.eq.15,1,ice_pi_tamas)
+    ice_lgm_tamas15 = where(ice_lgm_tamas.eq.15,1,ice_lgm_tamas)
+   
+    ice_pi15 = where(ice_pi.eq.15,1,ice_pi) 
+   
+    ice_lgm15 = where(ice_lgm.eq.15,1,ice_lgm)   
+
+    printVarSummary(ice_pi15)
+
+  ; diff1 = ice_pi15 - ice_pi_tamas15
+  ; diff2 = ice_lgm15 - ice_lgm_tamas15
+
+    diff1 = ice_pi - ice_pi_tamas
+    diff2 = ice_lgm - ice_lgm_tamas
+
+;   aice_edge1 = gsn_contour(wks, diff1, overlay_res)
+;   aice_edge2 = gsn_contour(wks, diff2, overlay_res2)
+  
+;   aice_edge3 = gsn_contour(wks, diff1, overlay_res)
+;   aice_edge4 = gsn_contour(wks, diff2, overlay_res2)
+
+
+
+   aice_edge1 = gsn_contour(wks, ice_pi_tamas15, overlay_res)
+   aice_edge2 = gsn_contour(wks, ice_lgm_tamas15, overlay_res)
+   aice_edge3 = gsn_contour(wks, ice_pi15, overlay_res2)
+   aice_edge4 = gsn_contour(wks, ice_lgm15, overlay_res2)
+
+  
+
+  overlay(plot(0), aice_edge1)
+  overlay(plot(0), aice_edge3)
+
+  overlay(plot(1), aice_edge2) 
+  overlay(plot(1), aice_edge4)
+
+;lat = pop_pi[0]->TLAT(0:145,0)
+
+
+area_pi = tarea_pi->TAREA
+area_lgm = tarea_lgm->TAREA
+
+ocn_pi_tamas = pop_pi_tamas->TEMP(0,0,:,:)
+ocn_pi = pop_pi->TEMP(0,0,:,:)
+ocn_lgm_tamas = pop_lgm_tamas->TEMP(0,0,:,:)
+ocn_lgm = pop_lgm->TEMP(0,0,:,:)
+
+
+area_pi_sum = sum(area_pi)
+area_lgm_sum = sum(area_lgm)
+
+
+printVarSummary(pi_temp_tamas)
+printVarSummary(area_pi)
+
+mul_pi_temp_tamas = (ocn_pi_tamas*area_pi)
+mul_pi_temp = (ocn_pi*area_pi)
+mul_lgm_temp_tamas = (ocn_lgm_tamas*area_lgm)
+mul_lgm_temp = (ocn_lgm*area_lgm)
+
+
+print(avg(pi_temp_tamas))
+print(avg(pi_temp))
+print(avg(lgm_temp_tamas))
+print(avg(lgm_temp))
+
+
+print(sum(mul_pi_temp_tamas)/area_pi_sum)
+print(sum(mul_pi_temp)/area_pi_sum)
+print(sum(mul_lgm_temp_tamas)/area_lgm_sum)
+print(sum(mul_lgm_temp)/area_lgm_sum)
+
+
+
+pi_area_m2_sum = sum(area_pi)
+lgm_area_m2_sum = sum(area_lgm)
+
+  pi_tamas_avg = sum(ocn_pi_tamas*area_pi)/(pi_area_m2_sum)
+  lgm_tamas_avg = sum(ocn_lgm_tamas*area_lgm)/(lgm_area_m2_sum)
+  pi_avg = sum(ocn_pi*area_pi)/(pi_area_m2_sum)
+  lgm_avg = sum(ocn_lgm*area_lgm)/(lgm_area_m2_sum)
+
+
+print("PI-noidemix")
+print(pi_tamas_avg)
+
+
+print("PI-idemix")
+print(pi_avg)
+
+
+print("LGM-Wilmes-noidemix")
+print(lgm_tamas_avg)
+
+
+print("LGM-Wilmes-idemix")
+print(lgm_avg)
+
+
+
+resP = True
+;  resP@gsnMaximize         = True                 ; make as large as possible
+;  resP@gsnPaperOrientation = "portrait"           ; force portrait
+;  resP@gsnPanelMainString  = "DEPTH of Specified TEMP Levels"
+  resP@gsnMaximize        = False
+  resP@gsnFrame         = False               ; save panel until both ready
+  resP@gsnPaperOrientation = "landscape"
+  resP@gsnPanelLabelBar   = True
+  resP@pmLabelBarWidthF   = 0.60
+  resP@pmLabelBarHeightF = 0.043
+;   resP@pmLabelBarWidthF   = 0.07
+;   resP@pmLabelBarHeightF = 0.33
+   resP@pmLabelBarOrthogonalPosF = -0.042
+   ;resP@pmLabelBarParallelPosF = -0.01
+;   resP@lbTitleExtentF = 0.01
+;resP@lbOrientation        = "Vertical"
+;resP@lbLabelPosition      = "Right"           ; label position
+
+
+
+resP@lbTitleString = "Difference in SST [degC]"
+;resP@lbTitleString = "Salt Flux [g/kg]"
+;resP@lbTitleString = "Heat Flux [10^-6 kg/m2/s]"
+;resP@lbTitleString = "Freshwater Flux [10^-6 kg/m2/s]"
+;resP@gsnPaperHeight = 80
+;resP@gsnPaperWidth = 80
+
+resP@lbTitleFontHeightF = 0.011
+;resP@lbTitlePosition     = "Top"
+;resP@lbTitleDirection     = "Across"                          ; letter angle
+;resP@lbTitleAngleF        = 270.                               ; title angle
+;resP@lbTitleDirection = "Down"
+;resP@lbTitleOffsetF = -0.003
+;!resP@lbTitleFont   = "helvetica-bold"
+
+;resP@gsnPanelYWhiteSpacePercent = 1
+;resP@gsnPanelXWhiteSpacePercent = 1
+resP@lbLabelFontHeightF= 0.010
+resP@gsnPanelFigureStringsFontHeightF = 0.011
+resP@gsnPanelFigureStrings= (/"(a)", "(b)"/)
+
+resP@gsnPanelTop = 0.95
+resP@gsnPanelBottom = 0.61
+
+;resP@gsnPanelFigureStringsFontHeightF = 0.012
+resP@gsnPanelYWhiteSpacePercent = 0.3
+
+
+
+;resP@gsnPanelXF = (/0.02,0.55/)
+;resP@gsnPanelYF = (/0.95,0.95/)
+
+
+;resP@lbLabelOffsetF = -0.2
+
+resP1 = True
+
+resP1@lbTitleString = "Difference in Salinity [g/kg]"
+;resP1@lbTitleString = "Buoyancy Flux [10^-6 kg/m2/s]"
+resP1@gsnPanelTop = 0.64
+resP1@gsnPanelBottom = 0.19 
+;  resP1@gsnMaximize         = True                 ; make as large as possible
+;  resP1@gsnPaperOrientation = "portrait"           ; force portrait
+;  resP1@gsnPanelMainString  = "DEPTH of Specified TEMP Levels"
+  resP1@gsnMaximize        = False
+  resP1@gsnFrame         = False               ; save panel until both ready
+  resP1@gsnPaperOrientation = "landscape"
+  resP1@gsnPanelLabelBar   = True
+  resP1@pmLabelBarWidthF   = 0.60
+  resP1@pmLabelBarHeightF = 0.043
+;  resP1@pmLabelBarWidthF   = 0.07
+;   resP1@pmLabelBarHeightF = 0.3
+   resP1@pmLabelBarOrthogonalPosF = -0.04
+   ;resP1@pmLabelBarParallelPosF = -0.01
+;   resP1@lbTitleExtentF = 0.01
+;resP1@lbOrientation        = "Vertical"
+;resP1@lbLabelPosition      = "Right"           ; label position
+;resP1@lbLabelOffsetF = -0.3
+
+
+;resP1@gsnPaperHeightF = 80
+;resP1@gsnPaperWidthF = 80
+
+resP1@lbTitleFontHeightF = 0.011
+;resP1@lbTitlePosition     = "Top"
+;resP1@lbTitleDirection     = "Across"                          ; letter angle
+;resP1@lbTitleAngleF        = 270.                               ; title angle
+;resP1@lbTitleDirection = "Down"
+;resP1@lbTitleOffsetF = -0.003
+;!resP1@lbTitleFont   = "helvetica-bold"
+
+resP1@gsnPanelYWhiteSpacePercent = 3
+;resP1@gsnPanelXWhiteSpacePercent = 1
+
+resP1@lbLabelFontHeightF= 0.010
+resP1@gsnPanelFigureStrings= (/"(c)", "(d)"/)
+resP1@gsnPanelFigureStringsFontHeightF = 0.011
+
+;resP1@gsnPanelXF = (/0.02,0.55/)
+;resP1@gsnPanelYF = (/0.5,0.5/)
+
+
+gsn_panel(wks, plot, (/1,2/), resP)
+gsn_panel(wks, plots, (/1,2/), resP1)
+
+
+txres2 = True
+txres2@txFontHeightF = 0.014
+txres2@txFont   = "helvetica-bold"
+
+gsn_text_ndc(wks,"PI (w/IDEMIX-w/oIDEMIX)",0.27,0.96,txres2)
+gsn_text_ndc(wks,"LGM (w/IDEMIX-w/oIDEMIX)",0.77,0.96,txres2)
+
+;gsn_text_ndc(wks,"LGM - PI (w/oIDEMIX)",0.27,0.99,txres2)
+;gsn_text_ndc(wks,"LGM - PI (w/IDEMIX)",0.77,0.99,txres2)
+
+
+
+;  psres = True                                                               
+;  maximize_output(wks,psres)  ; calls draw and frame for you 
+
+
+ 
+frame(wks)
+end
