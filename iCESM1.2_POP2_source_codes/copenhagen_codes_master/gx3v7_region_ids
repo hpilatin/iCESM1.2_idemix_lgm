@@ -1,0 +1,14 @@
+   1  'Southern Ocean    '        0.0   0.0      0.0
+   2  'Pacific Ocean     '        0.0   0.0      0.0
+   3  'Indian Ocean      '        0.0   0.0      0.0
+   4  'Atlantic Ocean    '        0.0   0.0      0.0
+   5  'Arctic Ocean      '        0.0   0.0      0.0
+   6  'Mediterranean Sea '        0.0   0.0      0.0        
+   7  'Labrador Sea      '        0.0   0.0      0.0
+   8  'GIN Sea           '        0.0   0.0      0.0
+  -9  'Red Sea           '       12.0  45.0      2.25e15
+ -10  'Black Sea         '       36.0 354.0      3.25e15
+ -11  'Caspian Sea       '       75.0 130.0      3.25e15
+
+!   CVS: 130625 guido
+!   CVS: ccsm3_0_1_beta32

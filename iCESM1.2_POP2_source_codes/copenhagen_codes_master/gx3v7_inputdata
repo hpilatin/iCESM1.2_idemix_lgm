@@ -1,0 +1,12 @@
+
+    #-----------------------------------------------------------------------------
+    #  identify all gx3v7 datasets residing in $DIN_LOC_ROOT/ocn/pop
+    #-----------------------------------------------------------------------------
+    set init_ts_filename      = $DIN_LOC_ROOT/ocn/pop/gx3v7/ic/ts_constS_cesmi6gat31_130626.be-ieeer8
+    set horiz_grid_filename   = $DIN_LOC_ROOT/ocn/pop/gx3v7/grid/grid_cesmi6gat31_130625.be-ieeer8 
+    set regionmask_filename   = $DIN_LOC_ROOT/ocn/pop/gx3v7/grid/regionmask_cesmi6gat31_130625.be-ieeei4
+    set topography_filename   = $DIN_LOC_ROOT/ocn/pop/gx3v7/grid/kmt_cesmi6gat31_130625.be-ieeei4
+    set shf_filename          = $DIN_LOC_ROOT/ocn/pop/gx3v7/forcing/shf_20090831.ieeer8
+    set sfwf_filename         = $DIN_LOC_ROOT/ocn/pop/gx3v7/forcing/sfwf_mm_PHC2_salx_flxio_20090831.ieeer8
+    set tidal_mixing_filename = $DIN_LOC_ROOT/ocn/pop/gx3v7/forcing/tidal_energy_gx3v7_cesmi6gat31_190528.ieeer8
+    set chl_filename          = $DIN_LOC_ROOT/ocn/pop/gx3v7/forcing/chl_mm_SeaWiFs97-01_20031205.ieeer8 
