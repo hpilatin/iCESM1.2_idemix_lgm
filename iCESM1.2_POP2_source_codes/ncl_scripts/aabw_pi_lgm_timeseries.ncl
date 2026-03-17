@@ -91,6 +91,7 @@ mpres = True
 pltres@PanelPlot  = True
 res@Footer    = False
 
+
 plot = new(4,graphic)
 ;plots = new(3,graphic)
 
