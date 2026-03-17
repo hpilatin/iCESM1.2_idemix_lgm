@@ -10,7 +10,7 @@
 !  POP module.
 !
 ! !REVISION HISTORY:
-!  SVN:$Id: initial.F90 28439 2011-05-18 21:40:58Z njn01 $
+!  SVN:$Id: initial.F90 68479 2015-02-26 16:27:39Z jzhu47@wisc.edu $
 !
 ! !USES:
 
@@ -18,6 +18,7 @@
    use POP_ErrorMod
    use POP_IOUnitsMod
    use POP_SolversMod
+   use POP_ReductionsMod
 
    use kinds_mod, only: i4, i8, r8, int_kind, log_kind, char_len
    use blocks, only: block, nx_block, ny_block, get_block
@@ -53,7 +54,7 @@
       state_range_enforce 
    use time_management, only: first_step, init_time1, init_time2, &
                               dttxcel, dtuxcel, check_time_flag_int,  &
-                              get_time_flag_id
+                              get_time_flag_id, freq_opt_nhour
    use topostress, only: init_topostress
    use ice
    use output, only: init_output
@@ -71,8 +72,9 @@
    use exit_mod, only: sigAbort, exit_pop, flushm
    use restart, only: read_restart, restart_fmt, read_restart_filename
    use ms_balance, only: init_ms_balance
+   use ms_balance_wiso, only: init_ms_balance_wiso
    use forcing_coupled, only: pop_init_coupled, pop_init_partially_coupled, &
-       qsw_distrb_iopt, qsw_distrb_iopt_const
+       qsw_distrb_iopt, qsw_distrb_iopt_const, ncouple_per_day, coupled_freq_iopt
    use global_reductions, only: init_global_reductions, global_sum
    use timers, only: init_timers
    use registry
@@ -85,6 +87,7 @@
    use shr_map_mod
 #endif
    use overflows
+   use overflow_type
 
    implicit none
    private
@@ -230,6 +233,7 @@
 !-----------------------------------------------------------------------
 
    call init_global_reductions
+!   call POP_initReductions
 
 !-----------------------------------------------------------------------
 !
@@ -299,6 +303,14 @@
 
 !-----------------------------------------------------------------------
 !
+!  initialize niw driven mixing
+!
+!-----------------------------------------------------------------------
+   
+!   call init_niw_mixing
+
+!-----------------------------------------------------------------------
+!
 !  initialize tidally driven mixing
 !
 !-----------------------------------------------------------------------
@@ -318,7 +330,6 @@
 !-----------------------------------------------------------------------
 
    call init_idemix
-
 
 !-----------------------------------------------------------------------
 !
@@ -346,6 +357,7 @@
 !
 !  initialize pressure gradient (pressure averaging)
 !  initialize baroclinic (reset to freezing)
+
 !  initialize barotropic (barotropic-related diagnostics)
 !  initialize surface_hgt (ssh-related diagnostics)
 !
@@ -543,6 +555,7 @@
 !-----------------------------------------------------------------------
  
    if (lcoupled .and. lms_balance) call init_ms_balance
+   if (lcoupled .and. lms_balance) call init_ms_balance_wiso
 
 !-----------------------------------------------------------------------
 !
@@ -1674,6 +1687,7 @@
       coupled_flag                ! flag for coupled_ts 
 
    logical (log_kind)        ::  &
+      test_condition,            &! logical test condition
       lref_val,                  &! are any tracers specifying a non-zero ref_val
       ISOP_test,                 &! temporary logical associated with ISOP
       ISOP_on                     ! are any ISOP tavg fields selected?
@@ -1805,14 +1819,14 @@
 !  tidal mixing without bckgrnd_vdc2 = 0.0
 !
 !-----------------------------------------------------------------------
-
-   if (check_all(ltidal_mixing .and. bckgrnd_vdc2 /= c0)) then
-     exit_string =   &
-    'FATAL ERROR:  bckgrnd_vdc2 must be zero when tidal_mixing option is enabled'
-     call document ('POP_check', exit_string)
-     number_of_fatal_errors = number_of_fatal_errors + 1
-   endif
-
+!
+!   if (check_all(ltidal_mixing .and. bckgrnd_vdc2 /= c0)) then
+!     exit_string =   &
+!    'FATAL ERROR:  bckgrnd_vdc2 must be zero when tidal_mixing option is enabled'
+!     call document ('POP_check', exit_string)
+!     number_of_fatal_errors = number_of_fatal_errors + 1
+!   endif
+!
 !-----------------------------------------------------------------------
 !
 !  diag_gm_bolus = .true., but ISOP variables not activated in tavg_contents file
@@ -1895,7 +1909,7 @@
   if (linertial) then
      exit_string =  'FATAL ERROR:  inertial mixing option. '
      exit_string =   trim(exit_string) /&
-     &/' This option does not exactly restart and is untested. DO NOT USE!'
+     &/' This option is untested. DO NOT USE!'
      call document ('POP_check', exit_string)
      number_of_fatal_errors = number_of_fatal_errors + 1
    endif
@@ -1944,6 +1958,38 @@
      endif
    endif
 
+!-----------------------------------------------------------------------
+!
+!  near-inertial wave mixing without KPP mixing
+!
+!-----------------------------------------------------------------------
+!
+!   if (check_all(lniw_mixing .and. vmix_itype /= vmix_type_kpp)) then
+!     exit_string =   &
+!     'FATAL ERROR:  Near-inertial wave mixing is only allowed when KPP mixing is enabled' 
+!     call document ('POP_check', exit_string)
+!     number_of_fatal_errors = number_of_fatal_errors + 1
+!   endif
+!
+!-----------------------------------------------------------------------
+!
+!  near-inertial wave mixing and not 2-hour coupling
+!
+!-----------------------------------------------------------------------
+!
+!   test_condition = (coupled_freq_iopt == freq_opt_nhour .and. ncouple_per_day == 12)
+!   if (check_all(lniw_mixing .and. .not. test_condition)  ) then
+!     call document ('POP_check', 'coupled_freq_iopt                   ', coupled_freq_iopt )
+!     call document ('POP_check', 'freq_opt_nhour                      ', freq_opt_nhour )
+!     call document ('POP_check', 'ncouple_per_day                     ', ncouple_per_day )
+!     call document ('POP_check', '(coupled_freq_iopt == freq_opt_nhour .and. ncouple_per_day == 2) ',  &
+!                        (coupled_freq_iopt == freq_opt_nhour .and. ncouple_per_day == 2) )
+!     exit_string =   &
+!     'FATAL ERROR:  Near-inertial wave mixing is only allowed when coupling every two hours' 
+!     call document ('POP_check', exit_string)
+!     number_of_fatal_errors = number_of_fatal_errors + 1
+!   endif
+!
 !-----------------------------------------------------------------------
 !
 !  Now that error messages have been written, stop if there are fatal errors

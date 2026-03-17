@@ -56,13 +56,22 @@
    real (r8), dimension(:,:,:,:), allocatable, public :: &
       KVIDEMIX,                   &
       E_iw,                       &
+      E_iw2,                      &
+      iw_diss_plot,               &
+      forc_tidal,                 &   
       SIGMA_TOPO_MASK,            &
+!      idfdiss_plot,               &
+!      idczer_plot,                &
       NMASK
-
+   
+!   real (r8), dimension(:,:,:), allocatable, public :: &
+!      KVIDEMIX,                   &
+!      E_iw
 
    real (r8), dimension(:,:,:), allocatable, public :: &
       betapl,                     &! Betaplane parameter
-      ide_test_niw                 ! FAKE FORCING, CONSTANT
+      ide_test_niw                ! FAKE FORCING, CONSTANT
+  
 
    real (r8), public ::           &! NOT SURE IF THESE SHOULD EVEN BE HERE 
       idmu0,                      &! namelist variable; dissipation parameter
@@ -81,13 +90,16 @@
    integer (int_kind) ::          &
       i, j, k, iblock,            &
       tavg_E_iw,                  &! id for E_iw
-      tavg_E_iw_diss               ! id for dissipation
+      tavg_iw_diss,             &! id for dissipation
+      tavg_tidal,               &
+!      tavg_idfdiss,             &
+!      tavg_idczer,              &
+      tavg_KVIDEMIX
 
    character (char_len) :: &
       string
 
-
-
+  
 !EOP
 
 !***********************************************************************
@@ -147,15 +159,15 @@
 !-----------------------------------------------------------------------
 
    lidemix                      = .true.          ! Enabled if module is used
-   enable_ide_eke               = .False.         ! EKE disabled
-   enable_idemix_hor_diffusion  = .true.          ! Horizontal diffusion enabled
+   enable_ide_eke               = .false.         ! EKE disabled  (Heves)
+   enable_idemix_hor_diffusion  = .true.          ! Horizontal diffusion enabled (Heves)
    idmu0                        = 4.0/3.0_r8      ! From McComas and Muller 1981
    idjstar                      = 10.0_r8         ! Olbers and Eden 2013, [3;10]
    idgamma                      = 1.57_r8         ! From O&E 2013 appendix, a=0.1
    idtauv                       = 1.0*86400.0_r8  ! 1 day in seconds
    idtauh                       = 10.0*86400.0_r8 ! 10 days, page 1769
-   kvidemix_max                 = 100_r8          ! max vertical mixing
-   kvidemix_min                 = 0.001_r8         ! min vertical mixing, set to molecular lvl
+   kvidemix_max                 = 100.0_r8          ! max vertical mixing
+   kvidemix_min                 = 0.001_r8         ! min vertical mixing, set to molecular lvl  
    ide_mix_efficiency           = 0.2_r8          ! Idemix mixing efficiency
    ide_min_buoy                 = 1e-12_r8        ! Minimum N^2 for idemix
    ide_const_niw                = 0.0_r8          ! Constant forcing surface
@@ -187,10 +199,12 @@
    allocate (NMASK(nx_block,ny_block,km,nblocks_clinic))
    allocate(betapl(nx_block,ny_block,nblocks_clinic))
 
+ 
+ 
 
      do iblock=1,nblocks_clinic
 
-       do k=1,km
+       do k=1,km !
          where ( k < KMT(:,:,iblock) ) 
            SIGMA_TOPO_MASK(:,:,k,iblock) = c1
          elsewhere
@@ -198,7 +212,7 @@
          endwhere
        enddo ! k
 
-       do k=1,km-1
+       do k=1,km-1 
          do j=2,ny_block-1
            do i=2,nx_block-1 
              if ( k < KMT(i,j,iblock) ) then
@@ -210,11 +224,85 @@
                     k == KMT(i-1,j-1,iblock)  .or.  &
                     k == KMT(i  ,j-1,iblock)  .or.  &
                     k == KMT(i+1,j-1,iblock) )      &
-                 SIGMA_TOPO_MASK(i,j,k,iblock) = c0 
+                 SIGMA_TOPO_MASK(i,j,k,iblock) = c0  
              endif 
            enddo ! i
          enddo ! j
        enddo ! k
+
+
+
+!       do k=1,km !
+!         where ( k < KMT(:,:,bid) )
+!           SIGMA_TOPO_MASK(:,:,k,bid) = c1
+!         elsewhere
+!           SIGMA_TOPO_MASK(:,:,k,bid) = c0
+!         endwhere
+!       enddo ! k
+
+!       do k=1,km-1
+!         do j=2,ny_block-1
+!           do i=2,nx_block-1
+!             if ( k < KMT(i,j,bid) ) then
+!               if ( k == KMT(i-1,j+1,bid)  .or.  &
+!                    k == KMT(i  ,j+1,bid)  .or.  &
+!                    k == KMT(i+1,j+1,bid)  .or.  &
+!                    k == KMT(i-1,j  ,bid)  .or.  &
+!                    k == KMT(i+1,j  ,bid)  .or.  &
+!                    k == KMT(i-1,j-1,bid)  .or.  &
+!                    k == KMT(i  ,j-1,bid)  .or.  &
+!                    k == KMT(i+1,j-1,bid) )      &
+!                 SIGMA_TOPO_MASK(i,j,k,bid) = c0  
+!             endif
+!           enddo ! i
+!         enddo ! j
+!       enddo ! k
+
+
+
+
+!       NMASK(:,:,:,bid)=c0
+
+! NMASK is a counter that calculates how many neighboring grid points are masks
+! This is because where there are more than two neighboring masks, instabilities
+! occur when coupling to biogeochemestry
+
+!       do k=1,km-1
+!         do j=2,ny_block-1
+!           do i=2,nx_block-1
+!             if ( k < KMT(i,j,bid) ) then
+!               if ( k >= KMT(i-1,j,bid)) then
+!                   NMASK(i,j,k,bid)=NMASK(i,j,k,bid)+c1
+!               endif
+!               if ( k >= KMT(i+1,j,bid)) then
+!                   NMASK(i,j,k,bid)=NMASK(i,j,k,bid)+c1
+!               endif
+!               if ( k >= KMT(i,j-1,bid)) then
+!                   NMASK(i,j,k,bid)=NMASK(i,j,k,bid)+c1
+!               endif
+!               if ( k >= KMT(i,j+1,bid)) then
+!                   NMASK(i,j,k,bid)=NMASK(i,j,k,bid)+c1
+!               endif
+!             endif
+!           enddo ! i
+!         enddo ! j
+!       enddo ! k
+!     do k=1,km
+!        where (k>=KMT(:,:,bid))
+!           NMASK(:,:,k,bid)=c0
+!        endwhere
+!     enddo
+
+
+
+!     call ugrid_to_tgrid(betapl(:,:,bid),ULAT(:,:,bid),bid)
+
+!     betapl(:,:,bid) = c2*omega*cos(betapl(:,:,bid))/radius
+
+
+
+
+
 
 
        NMASK(:,:,:,iblock)=c0
@@ -222,26 +310,65 @@
 ! NMASK is a counter that calculates how many neighboring grid points are masks
 ! This is because where there are more than two neighboring masks, instabilities
 ! occur when coupling to biogeochemestry
-       do k=1,km-1
+!       do k=1,km-1  
+!         do j=2,ny_block-1
+!           do i=2,nx_block-1
+!             if ( k < KMT(i,j,iblock) ) then
+!               if ( k >= KMT(i-1,j,iblock)) then
+!                   NMASK(i,j,k,iblock)=NMASK(i,j,k,iblock)+c1
+!               endif
+!               if ( k >= KMT(i+1,j,iblock)) then
+!                   NMASK(i,j,k,iblock)=NMASK(i,j,k,iblock)+c1
+!               endif
+!               if ( k >= KMT(i,j-1,iblock)) then
+!                   NMASK(i,j,k,iblock)=NMASK(i,j,k,iblock)+c1
+!               endif
+!               if ( k >= KMT(i,j+1,iblock)) then
+!                   NMASK(i,j,k,iblock)=NMASK(i,j,k,iblock)+c1
+!               endif
+!             endif
+!           enddo ! i
+!         enddo ! j
+!       enddo ! k
+!     do k=1,km 
+!        where (k>=KMT(:,:,iblock))
+!           NMASK(:,:,k,iblock)=c0
+!        endwhere
+!     enddo
+
+
+        do k=1,km-1
          do j=2,ny_block-1
            do i=2,nx_block-1
              if ( k < KMT(i,j,iblock) ) then
-               if ( k >= KMT(i-1,j,iblock)) then
-                   NMASK(i,j,k,iblock)=NMASK(i,j,k,iblock)+c1
-               endif
-               if ( k >= KMT(i+1,j,iblock)) then
-                   NMASK(i,j,k,iblock)=NMASK(i,j,k,iblock)+c1
-               endif
-               if ( k >= KMT(i,j-1,iblock)) then
+               if ( k >= KMT(i-1,j+1,iblock)) then
                    NMASK(i,j,k,iblock)=NMASK(i,j,k,iblock)+c1
                endif
                if ( k >= KMT(i,j+1,iblock)) then
                    NMASK(i,j,k,iblock)=NMASK(i,j,k,iblock)+c1
                endif
+               if ( k >= KMT(i+1,j+1,iblock)) then
+                   NMASK(i,j,k,iblock)=NMASK(i,j,k,iblock)+c1
+               endif
+               if ( k >= KMT(i-1,j ,iblock)) then
+                   NMASK(i,j,k,iblock)=NMASK(i,j,k,iblock)+c1
+               endif
+               if ( k >= KMT(i+1,j ,iblock)) then
+                   NMASK(i,j,k,iblock)=NMASK(i,j,k,iblock)+c1
+               endif
+               if ( k >= KMT(i-1,j-1,iblock)) then
+                   NMASK(i,j,k,iblock)=NMASK(i,j,k,iblock)+c1
+               endif
+               if ( k >= KMT(i ,j-1,iblock)) then
+                   NMASK(i,j,k,iblock)=NMASK(i,j,k,iblock)+c1
+               endif
+               if ( k >= KMT(i+1,j-1,iblock)) then
+                   NMASK(i,j,k,iblock)=NMASK(i,j,k,iblock)+c1
+               endif
              endif
-           enddo ! i
-         enddo ! j
-       enddo ! k
+          enddo ! i
+        enddo ! j
+      enddo ! k
      do k=1,km
         where (k>=KMT(:,:,iblock))
            NMASK(:,:,k,iblock)=c0
@@ -249,28 +376,71 @@
      enddo
 
 
+
+
+
      call ugrid_to_tgrid(betapl(:,:,iblock),ULAT(:,:,iblock),iblock)
       
      betapl(:,:,iblock) = c2*omega*cos(betapl(:,:,iblock))/radius
 
      enddo ! iblock
+
    string = 'Energy in IW field'
-   call define_tavg_field(tavg_E_iw,'E_IW',3,             &
+   call define_tavg_field(tavg_E_iw,'E_iw',3,             &
                           long_name=trim(string),             &
-                          units='erg/cm^3',                 &
+                          units='meters^2/s^2',                 &
                           grid_loc='3113',                    &
                           coordinates  ='TLONG TLAT z_w_bot time' ) 
-   string = 'Dissipated energy from IW field'
-   call define_tavg_field(tavg_E_iw_diss,'E_IW_DISS',3,             &
+
+   string = 'Dissipation Rate'
+   call define_tavg_field(tavg_iw_diss,'iw_diss_plot',3,             &
                           long_name=trim(string),             &
-                          units='erg/cm^3',                 &
+                          units='centimeters^2/s^3',                 &
                           grid_loc='3113',                    &
                           coordinates  ='TLONG TLAT z_w_bot time' )
+
+   string = 'KVIDEMIX'
+   call define_tavg_field(tavg_KVIDEMIX,'KVIDEMIX',3,             &
+                          long_name=trim(string),             &
+                          units='centimeters^2/s',                 &
+                          grid_loc='3113',                    &
+                          coordinates  ='TLONG TLAT z_w_bot time' )
+
+    string = 'Energy in IW field'
+   call define_tavg_field(tavg_E_iw,'E_iw2',3,             &
+                          long_name=trim(string),             &
+                          units='meters^2/s^2',                 &
+                          grid_loc='3113',                    &
+                          coordinates  ='TLONG TLAT z_w_bot time' )
+
+   string ='Tidal Energy Flux'
+   call define_tavg_field(tavg_tidal,'forc_tidal',3,             &
+                          long_name=trim(string),             &
+                          units='Watts/m^2',                 &
+                          grid_loc='3113',                    &
+                          coordinates  ='TLONG TLAT z_w_bot time' )   
+
+
+!   string = 'idczer'
+!   call define_tavg_field(tavg_idczer,'idczer_plot',3,             &
+!                          long_name=trim(string),             &
+!                          units='cm^2/s^3',                 &
+!                          grid_loc='3113',                    &
+!                          coordinates  ='TLONG TLAT z_w_bot time' )
+
+
+!   string = 'idfdiss'
+!   call define_tavg_field(tavg_idfdiss,'idfdiss_plot',3,             &
+!                          long_name=trim(string),             &
+!                          units='s/cm^2',                 &
+!                          grid_loc='3113',                    &
+!                          coordinates  ='TLONG TLAT z_w_bot time' )
+
 
 
 
 !-----------------------------------------------------------------------
-!EOC
+!EO
 
  end subroutine init_idemix
 
@@ -280,7 +450,7 @@
 ! !IROUTINE: kvmix_idemix1
 ! !INTERFACE:
 
- subroutine kvmix_idemix1( WORK3, WORK0, E_iw, KVIDEMIX, this_block)
+ subroutine kvmix_idemix1( WORK3, VISC, E_iw, KVIDEMIX, this_block)
 
 ! !DESCRIPTION:
 !  Calculate IDEMIX vertical mixing parameters
@@ -290,25 +460,28 @@
 
 ! !INPUT PARAMETERS:
 
-   real (r8), dimension(nx_block,ny_block,km), intent(in) :: &
-      WORK0,            &! Working array for RI_LOC
-      WORK3              ! Working array, N^2
+   real (r8), dimension(nx_block,ny_block,0:km+1), intent(in) :: &
+     VISC                ! Working array for RI_LOC
+!     WORK3              ! Working array, N^2
 
-!   real (r8), dimension(nx_block,ny_block), intent(in) :: &
-!      En                ! NIW energy
+   real (r8), dimension(nx_block,ny_block,0:km+1), intent(in) :: &
+     WORK3              ! Working array, N^2
 
-! FOR CESM 1.2.2 WE USE KBL IN THE FUNCTION, BUT NOT HERE
 
-!   integer (int_kind), dimension(nx_block,ny_block), intent(in) :: &
-!      KBL                    ! index of first lvl below hbl
+!   real (r8), dimension(nx_block,ny_block,km,nblocks_clinic), intent(in) :: &
+!      WORK4                ! Buoyany frequency (1/s)
+
+
 
 ! !INPUT/OUTPUT PARAMETERS:
 
    real (r8), dimension(nx_block,ny_block,km,nblocks_clinic), intent(out) :: &
       KVIDEMIX          ! kappa from idemix
 
+
    type (block), intent(in) :: &
       this_block        ! block information for current block
+
 
    real (r8), dimension(nx_block,ny_block,km,nblocks_clinic), intent(inout) :: &
       E_iw
@@ -336,7 +509,8 @@
       j,                            &! latitudinal index
       kbot,                         &! integer of bottom lvl
       kboundl,                      &! integer of bl lvl
-      bid                            ! local block index
+      bid,                          &! local block index
+      iblock
 
    real (r8) ::                     &
       effcor,                       &! 
@@ -344,6 +518,7 @@
       hfunc,                        &!
       gparm1,                       &!
       gparm2,                       &!
+      seawdens,                     &! 
       fxa,                          &!
       intN                           !
 
@@ -371,8 +546,15 @@
       flux_north                     ! Flux if horizontal diffusion is enabled
 
    real (r8), dimension(nx_block,ny_block,nblocks_clinic) :: &
-      forc_kbot                      ! Bottom forcing from tidal
+      forc_kbot                     ! Bottom forcing from tidal
+       
 
+   real (r8), dimension(nx_block,ny_block,km,nblocks_clinic) :: &
+      iw_diss_plot,                  &
+      forc_tidal
+
+   real (r8), dimension(nx_block,ny_block,km,nblocks_clinic) :: &
+       E_iw2
 
    real (r8), dimension(nx_block,ny_block) :: &
       forc_kbl,                     &! Boundary layer forcing
@@ -380,7 +562,7 @@
       WORK1,                        &! working array for EKE
       C_ROSSBY,                     &! integrated N
       L_ROSSBY                       ! eddy length scale
-
+    
 
 
 !-----------------------------------------------------------------------
@@ -390,6 +572,8 @@
 !-----------------------------------------------------------------------
    gparm1 = 0.9_r8
    gparm2 = 4.3_r8
+   seawdens = 1026.0_r8
+   
 
 
 !-----------------------------------------------------------------------
@@ -402,103 +586,82 @@
 
 !     write(stdout,*) ' Idemix count 1'
 
-
-     bid = this_block%local_id
-
+      bid = this_block%local_id
 
 ! Calculate forcing from NIWs
+
+    
+
      forc_kbl = ide_test_niw(:,:,bid) 
      
-! Calculate forcing from tides
-     forc_kbot(:,:,bid) = TIDAL_ENERGY_FLUX(:,:,bid) ! put this in the init subroutine
+! Calculate forcing from tides 
 
 
-! Calculate forcing from EKE - taken from Eden Greatbatch
-! The eddy energy cascade is scaled as EKE^(3/2) * L^(-1), where EKE scales as
-!
-! sqrt(EKE) = L * SIGMA
-!
-! With L being the minimum of Rhines and Rossby length scales and SIGMA being Eady
-! growth rate. 
+   
+! do j=1,ny_block
+!   do i=1,nx_block
+!     do k=1,km ! k=1,km
+!       where (KMT(:,:,bid) < k)  ! HEVES
+!         TIDAL_ENERGY_FLUX(:,:,bid) = c0
+!       endwhere
+!     enddo
+ !  enddo
+ !enddo
 
-    if( enable_ide_eke) then
+!   where (KMT(:,:,bid) < k) ! HEVES
+!     TIDAL_ENERGY_FLUX(:,:,bid) = c0
+!   endwhere
 
+ 
 
-      C_ROSSBY = c0
-
-      k = 1
-      where ( k < KMT(:,:,bid) )
-        C_ROSSBY = C_ROSSBY + sqrt(max(c0, WORK3(:,:,k))) * dzw(k-1)
-      endwhere
-
-      do k=1,km
-        where ( k < KMT(:,:,bid) )
-          C_ROSSBY = C_ROSSBY + sqrt(max(c0, WORK3(:,:,k))) * dzw(k)
-        endwhere
-        where ( k > 1  .and.  k == KMT(:,:,bid) )
-          C_ROSSBY = C_ROSSBY + sqrt(max(c0, WORK3(:,:,k-1))) * dzw(k)
-        endwhere
-      enddo
-
-      C_ROSSBY = C_ROSSBY / pi
-
-      L_ROSSBY = min( C_ROSSBY / (abs(FCORT(:,:,bid))+eps), &
-                      sqrt( C_ROSSBY / (c2*betapl(:,:,bid)) ) )
-
-
-      SIGMA =c0
-      do k=1,km-1
-        WORK1 = max( abs( FCORT(:,:,bid) ), sqrt(C_ROSSBY * c2 * betapl(:,:,bid)) )
-        where (k < KMT(:,:,bid))
-          SIGMA(:,:,k) = SIGMA_TOPO_MASK(:,:,k,bid) * WORK1  &
-                        / sqrt( WORK0(:,:,k) + min_gamma_eg )
-        end where
-      enddo
-     do k=1,km
-        forc_eke(:,:,k) = max(c0, c_eke_eg * SIGMA(:,:,k)**3*L_ROSSBY(:,:)**2)
-     enddo !k
-    else
+     forc_kbot(:,:,bid) = TIDAL_ENERGY_FLUX(:,:,bid) / (c1000 * 1026.0_r8) ! conversion from g/cm^3 to m^3/s^3 
   
-        forc_eke(:,:,:) = c0
-    endif ! enable_ide_EKE
+  
+    do k=1,42
+       where (KMT(:,:,bid) < k) ! HEVES
+         forc_kbot(:,:,bid) = c0
+       endwhere
+    enddo
 
 
 
-
+!     forc_tidal(:,:,bid) = TIDAL_ENERGY_FLUX(:,:,bid) / c1000
 
 !-----------------------------------------------------------------------
 !
 !  Calculate relevant IDEMIX parameters
 !
 !-----------------------------------------------------------------------
-
+    
+  
      do j=1,ny_block
        do i=1,nx_block
 
          intN = c0 ! The value of N integrated over the water column
-         do k=1,km ! without partial bottom cells 
-           if (k < KMT(i,j,bid) ) then
-             intN = intN + ((max(ide_min_buoy, WORK3(i,j,k)))**p5) * dzw(k) !
+         do k=1,km ! without partial bottom cells  ! HEVES
+           if (k < KMT(i,j,bid) ) then ! HEVES 
+             intN = intN + ((max(c0, WORK3(i,j,k)))**p5) * dzw(k) * 0.01_r8 ! WORK3 (N^2) is in 1/s, dzw is in cm ! HEVES 
            endif
          enddo ! k
 
-         cstar(i,j) = max(c1, (intN/(pi*idjstar))) ! 
+         cstar(i,j) = max(1e-2_r8, (intN/(pi*idjstar))) ! 
 
-         do k=1,km
-           effcor = (max(ide_min_buoy, WORK3(i,j,k)))**p5/(eps + abs(FCORT(i,j,bid))) 
+         do k=1,km ! HEVES 
+           effcor = ((max(c0, WORK3(i,j,k)))**p5)/(eps + abs(FCORT(i,j,bid)))  ! FCORT is 1/s ! HEVES
            gfunc = c2/pi/(c1-(c2/pi)*asin(c1/max(c3,effcor)))*gparm1*max(c3,effcor)**(-c2/c3) * &
-                    (c1-exp(-(max(c3,effcor))/gparm2)) ! g(x)
+                    (c1-exp(-(max(c3,effcor))/gparm2)) ! g(x) is in m/s^2, but here it is converted in cm^2/s
 
-           idczer(i,j,k) = max(c0, idgamma * cstar(i,j) * gfunc ) 
+           idczer(i,j,k) = max(c0, idgamma * cstar(i,j) * gfunc) ! idczer or c0 is in m^2/s^3, but here it is already in cm^2/s^3  ! HEVES 
 
-           hfunc = (c2/pi)/(c1-(c2/pi)*asin(c1/(effcor+eps))) * (effcor-c1)/(effcor+c1) ! h(x)
+           hfunc =  (c2/pi)/(c1-(c2/pi)*asin(c1/(effcor+eps))) * (effcor-c1)/(effcor+c1) ! h(x) is in m/s^2, but here it is converted in cm^2/s
 
-           v0(i,j,k) = max(c0, idgamma * cstar(i,j) * hfunc ) 
-           idfdiss(i,j,k)  =  max(1d-4,idmu0 * acosh(max(c1,effcor)) * abs(FCORT(i,j,bid))/cstar(i,j)**2)
+          ! v0(i,j,k) = max(c0, idgamma * cstar(i,j) * hfunc) ! v0 is in m^2/s^3, but here it is already in cm^2/s^3 ! HEVES 
+
+           idfdiss(i,j,k)  =  max(1d-4,idmu0 * acosh(max(c1,effcor)) * abs(FCORT(i,j,bid))/cstar(i,j)**2) ! idfdiss or alpha_c is in s/m^2, but, here, cstar is in cm/s. Therefore, idfdiss is also in s/cm^2 ! HEVES 
          enddo ! k
        enddo ! i
      enddo ! j
-
+   
      if (enable_idemix_hor_diffusion) then
     ! check for stability criterium, lateral diffusion is explicit
     !  tau_h v0^2 *dt/dx^2 <= 0.5  ->   v0  <  sqrt( 0.5*dx^2/(dt tau_h)  )
@@ -511,10 +674,10 @@
      endif
 
 
-
-
-
-     do k=1,km
+   
+ 
+  
+     do k=1,km ! k=1,km
 
        where ( k > KMT(:,:,bid))
          idczer(:,:,k) = c0
@@ -523,7 +686,16 @@
        endwhere
      enddo ! k
 
+     
 
+!  do k=1,km
+!    idfdiss_plot(:,:,k,bid) = idfdiss(:,:,k)
+!    idczer_plot(:,:,k,bid)  = idczer(:,:,k)
+!  enddo
+
+
+
+   dzw = dzw * 0.01_r8
 
 !-----------------------------------------------------------------------
 !
@@ -532,6 +704,8 @@
 !-----------------------------------------------------------------------
 
 ! TRIDIAGONAL IMPLICIT SOLVER FOR INTERNAL WAVE ENERGY
+
+  
      maxE_iw(:,:,:) = max(c0, E_iw(:,:,:,bid))
 
      NewE_iw = c0
@@ -542,18 +716,18 @@
          b_tri = c0
          c_tri = c0
          d_tri = c0
-         kboundl = 1 ! Set to KBL(i,j) if true boundary layer forcing is added
+         kboundl = 1  !  (HEVES)  ! Set to KBL(i,j) if true boundary layer forcing is added
          kbot = KMT(i,j,bid)
-         if (kbot > 0) then 
-           do k = 2,kbot
+         if (kbot > 0) then ! (kbot > 0) 
+           do k = 2,kbot 
              delta(k) = dtt * idtauv/dzw(k-1) * p5 * ( idczer(i,j,k) + idczer(i,j,k-1) )  
            enddo ! k
-           delta(1) = c0
-           do k=2,kbot
+           delta(1) = c0  
+           do k=2,kbot    
              a_tri(k) = - delta(k)*idczer(i,j,k-1)/dzw(k)
            enddo ! k
            a_tri(1)=c0
-           do k=2,kbot-1
+           do k=2,kbot-1  ! k =2,kbot-1
              b_tri(k) = 1 + delta(k) * idczer(i,j,k)/dzw(k) + delta(k+1) * idczer(i,j,k)/dzw(k) + &
                           dtt * idfdiss(i,j,k)*maxE_iw(i,j,k)
 
@@ -564,13 +738,12 @@
 
            b_tri(kbot) = 1 + delta(kbot)/dzw(kbot)*idczer(i,j,kbot) + &
                            dtt * idfdiss(i,j,kbot)*maxE_iw(i,j,kbot)
-           do k = 2,kbot-1
+           do k = 2,kbot-1  ! k = 2,kbot-1
              c_tri(k) = - delta(k+1)/dzw(k) * idczer(i,j,k+1)
 
            enddo
            c_tri(kbot) = c0
            c_tri(1) = -delta(2)/(dzw(1))*idczer(i,j,2) 
-
            d_tri(1:kbot) = maxE_iw(i,j,1:kbot) + dtt*forc_eke(i,j,1:kbot)
            d_tri(kboundl) = d_tri(kboundl) + dtt*forc_kbl(i,j)/dzw(kboundl)
            d_tri(kbot) = d_tri(kbot) + dtt*forc_kbot(i,j,bid)/dzw(kbot)
@@ -584,8 +757,30 @@
      enddo ! i
 
  ! Store IW dissipation
+ 
+!   do k=2,km ! k=1,km
+!    where ( k < KMT(:,:,bid) ) ! k<= KMT
+!      where (REGION_MASK(:,:,bid) < c0)    ! KMT is the deepest point in a grid cell (Heves)
+!          E_iw2(:,:,k,bid) = 1d-7
+!        elsewhere
+          E_iw2(:,:,:,bid) = newE_iw
+!         endwhere
+!     elsewhere
+!           E_iw2(:,:,k,bid) = c0
+!     endwhere
+!   enddo   
 
- iw_diss(:,:,:) = idfdiss * maxE_iw * NewE_iw
+  
+    iw_diss(:,:,:) = idfdiss * maxE_iw * newE_iw * 1d4 
+
+ 
+
+    dzw = dzw * 1d2
+    
+   
+! When if (enable_idemix_hor_diffusion)
+! and add tendency due to lateral diffusion are deactivated, E_iw2 also gives 0
+! as the min.
 
 
  if (enable_idemix_hor_diffusion) then
@@ -595,6 +790,7 @@
  flux_east(:,:,:)=c0
  flux_north(:,:,:)=c0
 
+ 
   do k=1,km
    do j=1,ny_block
     do i=1,nx_block-1
@@ -610,6 +806,7 @@
     do i=1,nx_block-1
       if (k<=KMT(i,j,bid) .and. k<=KMT(i,j+1,bid)) then
         flux_north(i,j,k)= idtauh*p5*(v0(i,j+1,k)+v0(i,j,k)) * &
+
             (v0(i,j+1,k)*E_iw(i,j+1,k,bid)-v0(i,j,k)*E_iw(i,j,k,bid))/DYT(i,j,bid)
       else
         flux_north(i,j,k) = c0
@@ -618,52 +815,64 @@
    enddo
   enddo
 
-  do j=2,ny_block
-    do i=2,nx_block
-     NewE_iw(i,j,:)= NewE_iw(i,j,:) + dtt* &
+ do j=2,ny_block
+   do i=2,nx_block
+    newE_iw(i,j,:)=newE_iw(i,j,:) + dtt* &
                                   (( flux_east(i,j,:) - flux_east(i-1,j,:))/(DXT(i,j,bid)) &
-                                  +(flux_north(i,j,:) -flux_north(i,j-1,:))/(DYT(i,j,bid)) )
+                                 +(flux_north(i,j,:) -flux_north(i,j-1,:))/(DYT(i,j,bid)) )
    enddo
   enddo
  endif
 
 
-
-
-
-     
      KVIDEMIX(:,:,:,:) = c0
+   
      do k=1,km
        where ( k <= KMT(:,:,bid) )
-         where (REGION_MASK(:,:,bid) < c0)
-           KVIDEMIX(:,:,k,bid)=kvidemix_min
+         where (REGION_MASK(:,:,bid) < c0)    ! KMT is the deepest point in a grid cell (Heves)
+           KVIDEMIX(:,:,k,bid) = kvidemix_min ! for the marginal seas(Heves)
          elsewhere
            kap_idemix(:,:,k) = ide_mix_efficiency/(c1 + ide_mix_efficiency) * iw_diss(:,:,k)
-           kap_idemix(:,:,k) = max(kvidemix_min, min(kvidemix_max, kap_idemix(:,:,k)/( max(ide_min_buoy, WORK3(:,:,k)) )) )
+           kap_idemix(:,:,k) = max(kvidemix_min, min(kvidemix_max, kap_idemix(:,:,k)/(max(ide_min_buoy, WORK3(:,:,k)))) )
            KVIDEMIX(:,:,k,bid) = min(kvidemix_max, kap_idemix(:,:,k) )
            E_iw(:,:,k,bid) = newE_iw(:,:,k)
          endwhere
        elsewhere
-         KVIDEMIX(:,:,k,bid) = c0
-         E_iw(:,:,k,bid) = c0
-
-       endwhere
+        KVIDEMIX(:,:,k,bid) = c0
+        E_iw(:,:,k,bid) = c0
+      endwhere 
 
 ! CHECK numerically unstable grid cells, i.e. grid cells with more than 2
 ! neighbor landmask cells
        where (NMASK(:,:,k,bid) > c2)
           KVIDEMIX(:,:,k,bid)=0.1_r8
-       endwhere
+       endwhere    
        where (WORK3(:,:,k) < c0)
           KVIDEMIX(:,:,k,bid) = kvidemix_min
        endwhere
 
+       iw_diss_plot(:,:,k,bid) = iw_diss(:,:,k)
+       forc_tidal(:,:,k,bid) = forc_kbot(:,:,bid)
+
+
+       call accumulate_tavg_field(KVIDEMIX(:,:,k,bid),tavg_KVIDEMIX,bid,k)
 
        call accumulate_tavg_field(E_iw(:,:,k,bid),tavg_E_iw,bid,k)
 
-       call accumulate_tavg_field(iw_diss(:,:,k),tavg_E_iw_diss,bid,k)
+       call accumulate_tavg_field(E_iw2(:,:,k,bid),tavg_E_iw,bid,k)
+       
+       call accumulate_tavg_field(iw_diss_plot(:,:,k,bid),tavg_iw_diss,bid,k)
+
+       call accumulate_tavg_field(forc_tidal(:,:,k,bid),tavg_tidal,bid,k)
+
+!       call accumulate_tavg_field(idfdiss_plot(:,:,k,bid),tavg_idfdiss,bid,k)
+
+!       call accumulate_tavg_field(idczer_plot(:,:,k,bid),tavg_idczer,bid,k)
+
      enddo ! k
+   
    endif !lidemix
+
 
 
 
